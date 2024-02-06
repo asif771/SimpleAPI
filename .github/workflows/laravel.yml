@@ -31,37 +31,21 @@ jobs:
         DB_DATABASE: database/database.sqlite
       run: vendor/bin/phpunit
 
-
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: '12'
-          check-latest: true
-      - name: Install NPM dependencies
-        run: npm install
-      - name: Compile assets for production
-        run: npm run production
-
   deploy:
     runs-on: ubuntu-latest
-  
+
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Deployment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.FTP_HOSTNAME }}
-          key: ${{ secrets.FTP_PASSWORD }}
-          username: ${{ secrets.FTP_USERNAME }}
-          script: |
-            cd /var/www/html/
-            git checkout -f 
-            git pull origin master
+
+      - name: Install FTP Client
+        run: sudo apt-get install -y lftp
+
+      - name: Deploy via FTP
+        run: |
+          lftp -c "open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_HOSTNAME; set ssl:verify-certificate no; mirror -Rnev ./ /htdocs"
+        env:
+          FTP_HOSTNAME: ${{ secrets.FTP_HOSTNAME }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
