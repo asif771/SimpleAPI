@@ -43,7 +43,7 @@ jobs:
 
       - name: Deploy via FTP
         run: |
-          lftp -c "open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_HOSTNAME; set ssl:verify-certificate no; mirror -Rnev ./ /htdocs"
+          lftp -c "open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_HOSTNAME; set ssl:verify-certificate no; mirror -Rnev ./ /laravel"
         env:
           FTP_HOSTNAME: ${{ secrets.FTP_HOSTNAME }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
